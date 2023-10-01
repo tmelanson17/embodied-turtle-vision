@@ -41,7 +41,7 @@ private:
 
 
 	double LIN_VEL=0.1;
-	double ANG_VEL=2.0;
+	double ANG_VEL=1.0;
 
         // Set linear velocity based on the received integer value
 	switch (dir) {
