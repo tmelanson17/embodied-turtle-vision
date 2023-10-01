@@ -4,8 +4,8 @@
 
 enum Direction {
     LEFT=0,
-    RIGHT=1,
-    FORWARD=2,
+    FORWARD=1,
+    RIGHT=2,
     STOP=3
 };
 
@@ -40,8 +40,8 @@ private:
         twist_msg.angular.z = 0.0;
 
 
-	double LIN_VEL=0.5;
-	double ANG_VEL=1.0;
+	double LIN_VEL=0.1;
+	double ANG_VEL=2.0;
 
         // Set linear velocity based on the received integer value
 	switch (dir) {
@@ -50,7 +50,7 @@ private:
 		break;
 	    }
 	    case (Direction::RIGHT): {
-                twist_msg.angular.z = -ANG_VEL;
+                twist_msg.angular.z = ANG_VEL;
 		break;
 	    }
 	    case (Direction::FORWARD): {
