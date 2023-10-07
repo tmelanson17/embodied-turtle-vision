@@ -14,7 +14,7 @@ from std_msgs.msg import Int32
 
 BBOX_COLOR_RGB = (0, 255, 255)
 BBOX_WIDTH = 1
-DEBUG = False
+DEBUG = True
 
 
 class ComputerVisionSubscriber(Node):
@@ -78,7 +78,7 @@ class ComputerVisionSubscriber(Node):
                 mid_x = min(0.999, max(0, mid_x))
                 value_to_publish = int(mid_x * 3)  # Using x-axis value. Change to mid_y for y-axis.
             else:
-                value_to_publish = 0    
+                value_to_publish = 3    
             self.control_publisher.publish(Int32(data=value_to_publish))
 
         return
