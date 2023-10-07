@@ -17,7 +17,7 @@ class MinimalPublisher : public rclcpp::Node
     MinimalPublisher()
     : Node("minimal_publisher"), count_(0)
     {
-      publisher_ = this->create_publisher<std_msgs::msg::Int32>("/direction", 10);
+      publisher_ = this->create_publisher<std_msgs::msg::Int32>("/ai/follow", 10);
       timer_ = this->create_wall_timer(
       3000ms, std::bind(&MinimalPublisher::timer_callback, this));
     }
