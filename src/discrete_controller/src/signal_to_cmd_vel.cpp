@@ -3,9 +3,9 @@
 #include "geometry_msgs/msg/twist.hpp"
 
 enum Direction {
-    LEFT=0,
+    RIGHT=0,
     FORWARD=1,
-    RIGHT=2,
+    LEFT=2,
     STOP=3
 };
 
@@ -16,7 +16,7 @@ public:
     {
         // Create a subscriber to listen for integer messages
         subscriber_ = this->create_subscription<std_msgs::msg::Int32>(
-            "/direction", 10, std::bind(&DiscreteController::integerCallback, this, std::placeholders::_1));
+            "/ai/follow", 10, std::bind(&DiscreteController::integerCallback, this, std::placeholders::_1));
 
         // Create a publisher to publish Twist messages
         twist_publisher_ = this->create_publisher<geometry_msgs::msg::Twist>(
@@ -34,14 +34,14 @@ private:
 
         // Create a Twist message
         geometry_msgs::msg::Twist twist_msg;
-        twist_msg.linear.x = 0.0; 
+        twist_msg.linear.x = 0.0;
 
         // Set angular velocity (no rotation)
         twist_msg.angular.z = 0.0;
 
 
 	double LIN_VEL=0.1;
-	double ANG_VEL=1.0;
+	double ANG_VEL=0.5;
 
         // Set linear velocity based on the received integer value
 	switch (dir) {
@@ -77,4 +77,3 @@ int main(int argc, char *argv[])
     rclcpp::shutdown();
     return 0;
 }
-
