@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import rclpy
 import torch
+import math
 
 from cv_bridge import CvBridge
 from rclpy.node import Node
@@ -44,7 +45,7 @@ class ComputerVisionSubscriber(Node):
         self.timer_period = 1 / n_fps
         self.timer = self.create_timer(self.timer_period, self.run_inference)
         self.target_class = target_class
-        return
+        self.prev_result = None
 
     def listener_callback(self, msg):
         self.latest_img = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
@@ -56,16 +57,30 @@ class ComputerVisionSubscriber(Node):
             # Filter results to only include the target class
             results = results[results['class'] == self.target_class]
             results = results[results['confidence'] > 0.6]
-
-            if DEBUG:
+            # TODO: Filter a result that's within N pixels of the previous result
+            if self.prev_result is None and not results.empty:
+                self.prev_result = results.iloc[0]
+            elif self.prev_result is not None:
+                best_result = None
+                for _, r in results.iterrows():
+                    center_results_x = math.sqrt((r['xmax'] - r['xmin'])**2)
+                    center_results_y = math.sqrt((r['ymax'] - r['ymin'])**2)
+                    center_current_result_x = math.sqrt((self.prev_result['xmax'] - self.prev_result['xmin'])**2)
+                    center_current_result_y = math.sqrt((self.prev_result['ymax'] - self.prev_result['ymin'])**2) 
+                    delta = center_current_result_x - center_results_x
+                    arbitrary_distance_x = 100
+                    if delta <= arbitrary_distance_x:
+                        best_result = r
+                if best_result is not None:
+                    self.prev_result = r
+            if DEBUG and self.prev_result is not None:
                 debug_img = self.latest_img.copy()
-                for _, row in results.iterrows():
-                    cv2.rectangle(
-                        debug_img, 
-                        (int(row['xmin']), int(row['ymin'])), 
-                        (int(row['xmax']), int(row['ymax'])), 
-                        BBOX_COLOR_RGB,
-                        BBOX_WIDTH)
+                cv2.rectangle(
+                    debug_img, 
+		    (int(self.prev_result['xmin']), int(self.prev_result['ymin'])), 
+		    (int(self.prev_result['xmax']), int(self.prev_result['ymax'])), 
+		    BBOX_COLOR_RGB,
+		    BBOX_WIDTH)
 
                 debug_msg = self.bridge.cv2_to_imgmsg(debug_img, 'bgr8')
                 self.debug_image_publisher.publish(debug_msg)
